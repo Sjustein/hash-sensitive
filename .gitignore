@@ -1,6 +1,7 @@
 *.cache
 composer.phar
 vendor/
+examples/hashresult.php
 
 # IntelliJ project files
 *.iml

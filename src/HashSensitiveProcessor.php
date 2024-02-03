@@ -17,6 +17,7 @@ class HashSensitiveProcessor implements ProcessorInterface
     private array $sensitiveKeys;
     private ?int $lengthLimit;
     private string $algorithm;
+    private bool $exclusiveSubtree;
 
     /**
      * Creates a new HashSensitiveProcessor instance.
@@ -24,11 +25,12 @@ class HashSensitiveProcessor implements ProcessorInterface
      * @param array $sensitiveKeys Keys that should trigger the redaction.
      * @param int|null $lengthLimit Max length after redaction.
      */
-    public function __construct(array $sensitiveKeys, string $algorithm = 'sha256', ?int $lengthLimit = null)
+    public function __construct(array $sensitiveKeys, string $algorithm = 'sha256', ?int $lengthLimit = null, bool $exclusiveSubtree = true)
     {
         $this->sensitiveKeys = $sensitiveKeys;
         $this->lengthLimit = $lengthLimit;
         $this->algorithm = $algorithm;
+        $this->exclusiveSubtree = $exclusiveSubtree;
     }
 
     /**
@@ -94,7 +96,7 @@ class HashSensitiveProcessor implements ProcessorInterface
      *
      * @return array Input array with redacted values hashed
      */
-    private function traverseInputArray(array $inputArray, array $sensitiveKeys): array
+    public function traverseInputArray(array $inputArray, array $sensitiveKeys): array
     {
         foreach ($inputArray as $key => $value) {
             if ($value === null) {
@@ -104,7 +106,7 @@ class HashSensitiveProcessor implements ProcessorInterface
 
             // If the value is not an array or an object, hash it if it is a sensitive key
             if (is_scalar($value)) {
-                if (array_key_exists($key, $sensitiveKeys)) {
+                if (in_array($key, $sensitiveKeys)) {
                     $inputArray[$key] = $this->hash((string) $value);
                 }
 
@@ -114,6 +116,12 @@ class HashSensitiveProcessor implements ProcessorInterface
             // The value is either an array or an object, let traverse handle the specifics
             if (array_key_exists($key, $sensitiveKeys)) {
                 $inputArray[$key] = $this->traverse($key, $value, $sensitiveKeys[$key]);
+
+                // ExclusiveSubtree turned off means that subkeys should be checked according to ALL keys, not just
+                // the keys in their sensitive keys subtree
+                if (!$this->exclusiveSubtree) {
+                    $inputArray[$key] = $this->traverse($key, $inputArray[$key], $sensitiveKeys);
+                }
             } else {
                 $inputArray[$key] = $this->traverse($key, $value, $sensitiveKeys);
             }
@@ -145,6 +153,10 @@ class HashSensitiveProcessor implements ProcessorInterface
             // The value is either an array or an object, let traverse handle the specifics
             if (array_key_exists($key, $sensitiveKeys)) {
                 $object->{$key} = $this->traverse($key, $value, $sensitiveKeys[$key]);
+
+                if (!$this->exclusiveSubtree) {
+                    $object->{$key} = $this->traverse($key, $object->{key}, $sensitiveKeys);
+                }
             } else {
                 $object->{$key} = $this->traverse($key, $value, $sensitiveKeys);
             }
