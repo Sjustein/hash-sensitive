@@ -1,3 +1,3 @@
 <?php
 
-uses(RedactSensitiveTests\TestCase::class)->in('');
+uses(HashSensitiveTests\TestCase::class)->in('');
