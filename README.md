@@ -1,4 +1,4 @@
-# Redact Sensitive [![CI](https://github.com/Sjustein/hash-sensitive/actions/workflows/ci.yml/badge.svg)](https://github.com/Sjustein/hash-sensitive/actions/workflows/ci.yml)
+# Hash Sensitive [![CI](https://github.com/Sjustein/hash-sensitive/actions/workflows/ci.yml/badge.svg)](https://github.com/Sjustein/hash-sensitive/actions/workflows/ci.yml)
 
 🙈 A Monolog processor that protects sensitive data from miss logging. Forked from: [redact-sensitive](https://github.com/leocavalcante/redact-sensitive) by [Leo Cavalcante](https://github.com/leocavalcante)
 
@@ -31,7 +31,7 @@ use HashSensitive\HashSensitiveProcessor;
 
 $sensitive_keys = ['api_key'];
 
-$processor = new RedactSensitiveProcessor($sensitive_keys);
+$processor = new HashSensitiveProcessor($sensitive_keys);
 ```
 
 ### 3. Set the Processor to a Monolog\Logger
@@ -41,7 +41,7 @@ use HashSensitive\HashSensitiveProcessor;
 
 $sensitive_keys = ['api_key'];
 
-$processor = new RedactSensitiveProcessor($sensitive_keys);
+$processor = new HashSensitiveProcessor($sensitive_keys);
 
 $logger = new \Monolog\Logger('Readme');
 $logger->pushProcessor($processor);

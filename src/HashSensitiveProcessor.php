@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RedactSensitive;
+namespace HashSensitive;
 
 use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
@@ -10,33 +10,22 @@ use UnexpectedValueException;
 
 /**
  * The processor to be added to your Monolog instance.
- * @package RedactSensitive
+ * @package HashSensitive
  */
-class RedactSensitiveProcessor implements ProcessorInterface
+class HashSensitiveProcessor implements ProcessorInterface
 {
-    /**
-     * @var string The default replacement character.
-     */
-    public const DEFAULT_REPLACEMENT = '*';
-
     private array $sensitiveKeys;
-    private string $replacement;
-    private string $template;
     private ?int $lengthLimit;
 
     /**
-     * Creates a new RedactSensitiveProcessor instance.
+     * Creates a new HashSensitiveProcessor instance.
      *
      * @param array $sensitiveKeys Keys that should trigger the redaction.
-     * @param string $replacement The replacement character.
-     * @param string $template Template for replacement characters.
      * @param int|null $lengthLimit Max length after redaction.
      */
-    public function __construct(array $sensitiveKeys, string $replacement = self::DEFAULT_REPLACEMENT, string $template = '%s', ?int $lengthLimit = null)
+    public function __construct(array $sensitiveKeys, ?int $lengthLimit = null)
     {
         $this->sensitiveKeys = $sensitiveKeys;
-        $this->replacement = $replacement;
-        $this->template = $template;
         $this->lengthLimit = $lengthLimit;
     }
 

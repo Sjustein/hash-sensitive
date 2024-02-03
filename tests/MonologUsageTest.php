@@ -8,11 +8,11 @@ use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
-use RedactSensitive\RedactSensitiveProcessor;
+use RedactSensitive\HashSensitiveProcessor;
 
 it('plays nice with monolog', function (): void {
     $handler = new TestHandler();
-    $processor = new RedactSensitiveProcessor(['test_key' => 4]);
+    $processor = new HashSensitiveProcessor(['test_key' => 4]);
 
     $logger = new Logger('Test', [$handler], [$processor]);
     $logger->info('Testing', ['test_key' => 'test_value']);

@@ -3,11 +3,11 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
+use RedactSensitive\HashSensitiveProcessor;
 
 $sensitive_keys = ['api_key' => 4];
 
-$processor = new RedactSensitiveProcessor($sensitive_keys);
+$processor = new HashSensitiveProcessor($sensitive_keys);
 
 $logger = new \Monolog\Logger('Readme', [new StreamHandler(STDOUT)]);
 $logger->pushProcessor($processor);

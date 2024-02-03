@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace RedactSensitiveTests;
 
-use RedactSensitive\RedactSensitiveProcessor;
+use RedactSensitive\HashSensitiveProcessor;
 
 it('redacts records contexts', function (): void {
     $sensitive_keys = ['test' => 3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => 'foo***']);
@@ -16,7 +16,7 @@ it('redacts records contexts', function (): void {
 
 it('redacts using template', function (): void {
     $sensitive_keys = ['test' => 2];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, template: '%s(redacted)');
+    $processor = new HashSensitiveProcessor($sensitive_keys, template: '%s(redacted)');
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => 'fo****(redacted)']);
@@ -24,7 +24,7 @@ it('redacts using template', function (): void {
 
 it('redacts discarding masked', function (): void {
     $sensitive_keys = ['test' => 1];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, template: '...');
+    $processor = new HashSensitiveProcessor($sensitive_keys, template: '...');
 
     $record = $this->getRecord(context: ['test' => 'foobar123']);
     expect($processor($record)->context)->toBe(['test' => 'f...']);
@@ -32,7 +32,7 @@ it('redacts discarding masked', function (): void {
 
 it('truncates masked characters', function (): void {
     $sensitive_keys = ['test' => 3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, lengthLimit: 5);
+    $processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 5);
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => 'foo**']);
@@ -40,7 +40,7 @@ it('truncates masked characters', function (): void {
 
 it('truncates visible characters', function (): void {
     $sensitive_keys = ['test' => 3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, lengthLimit: 2);
+    $processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 2);
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => 'fo']);
@@ -48,7 +48,7 @@ it('truncates visible characters', function (): void {
 
 it('overrides default replacement', function (): void {
     $sensitive_keys = ['test' => 3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, '_');
+    $processor = new HashSensitiveProcessor($sensitive_keys, '_');
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => 'foo___']);
@@ -56,7 +56,7 @@ it('overrides default replacement', function (): void {
 
 it('redacts from right to left', function (): void {
     $sensitive_keys = ['test' => -3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => '***bar']);
@@ -64,7 +64,7 @@ it('redacts from right to left', function (): void {
 
 it('truncates masked from right to left', function (): void {
     $sensitive_keys = ['test' => -3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, lengthLimit: 4);
+    $processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 4);
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => '*bar']);
@@ -72,7 +72,7 @@ it('truncates masked from right to left', function (): void {
 
 it('truncates visible from right to left', function (): void {
     $sensitive_keys = ['test' => -3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys, lengthLimit: 2);
+    $processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 2);
 
     $record = $this->getRecord(context: ['test' => 'foobar']);
     expect($processor($record)->context)->toBe(['test' => 'ar']);
@@ -80,7 +80,7 @@ it('truncates visible from right to left', function (): void {
 
 it('redacts nested arrays', function (): void {
     $sensitive_keys = ['test' => ['nested' => 3]];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => ['nested' => 'foobar']]);
     expect($processor($record)->context)->toBe(['test' => ['nested' => 'foo***']]);
@@ -88,7 +88,7 @@ it('redacts nested arrays', function (): void {
 
 it('redacts inside nested arrays', function (): void {
     $sensitive_keys = ['nested' => 3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => ['nested' => 'foobar']]);
     expect($processor($record)->context)->toBe(['test' => ['nested' => 'foo***']]);
@@ -100,7 +100,7 @@ it('redacts nested objects', function (): void {
     $nested->nested = ['value' => 'bazqux'];
 
     $sensitive_keys = ['test' => ['nested' => ['value' => 3, 'nested' => ['value' => -3]]]];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => ['nested' => $nested]]);
 
@@ -115,7 +115,7 @@ it('redacts inside nested objects', function (): void {
     $nested->nested = ['value' => 'bazqux'];
 
     $sensitive_keys = ['nested' => ['value' => -3]];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => ['nested' => $nested]]);
 
@@ -126,7 +126,7 @@ it('redacts inside nested objects', function (): void {
 
 it('preserves empty values', function (): void {
     $sensitive_keys = ['test' => 3, 'optionalKey' => 10];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => 'foobar', 'optionalKey' => '']);
     expect($processor($record)->context)->toBe(['test' => 'foo***', 'optionalKey' => '']);
@@ -134,7 +134,7 @@ it('preserves empty values', function (): void {
 
 it('throws when finds an un-traversable value', function (): void {
     $sensitive_keys = ['test' => 3];
-    $processor = new RedactSensitiveProcessor($sensitive_keys);
+    $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => fopen(__FILE__, 'rb')]);
     $processor($record);

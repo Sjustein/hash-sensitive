@@ -1,12 +1,12 @@
 {
-    "name": "leocavalcante/redact-sensitive",
+    "name": "sjustein/hash-sensitive",
     "description": "Monolog processor to protect sensitive information from logging",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "leocavalcante",
-            "email": "lc@leocavalcante.com"
+            "name": "sjustein",
+            "email": "hashsensitive@justinruiter.nl"
         }
     ],
     "minimum-stability": "stable",
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "RedactSensitive\\": "src/"
+            "HashSensitive\\": "src/"
         }
     },
     "require-dev": {
@@ -24,7 +24,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "RedactSensitiveTests\\": "tests/"
+            "HashSensitiveTests\\": "tests/"
         }
     },
     "config": {
