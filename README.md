@@ -1,39 +1,35 @@
-# Redact Sensitive [![CI](https://github.com/leocavalcante/redact-sensitive/actions/workflows/ci.yml/badge.svg)](https://github.com/leocavalcante/redact-sensitive/actions/workflows/ci.yml)
+# Redact Sensitive [![CI](https://github.com/Sjustein/hash-sensitive/actions/workflows/ci.yml/badge.svg)](https://github.com/Sjustein/hash-sensitive/actions/workflows/ci.yml)
 
-🙈 A Monolog processor that protects sensitive data from miss logging.
+🙈 A Monolog processor that protects sensitive data from miss logging. Forked from: [redact-sensitive](https://github.com/leocavalcante/redact-sensitive) by [Leo Cavalcante](https://github.com/leocavalcante)
 
-Avoids logging something like `{"api_key":"mysupersecretapikey"}` by masking partially or completely sensitive data:
+Avoids logging something like `{"api_key":"mysupersecretapikey"}` by substituting the value by a hashed version of the value:
 ```text
-Readme.INFO: Hello, World! {"api_key":"mysu***************"} []
+Readme.INFO: Hello, World! {"api_key":"TODO"} []
 ```
 
 ## Install
 ```shell
-composer require leocavalcante/redact-sensitive
+TODO
 ```
 
 ## Usage
 
 ### 1. Prepare your sensitive keys
 
-It is a map of key names and how much of it can be displayed, for example:
+It is an array of key names, for example:
 ```php
-$sensitive_keys = [
-    'api_key' => 4,
-];
+$sensitive_keys = ['api_key'];
 ```
-Shows the first 4 characters of the `api_key`.
-
-#### If you want to display the last chars, you can use negative values like `['api_key' => -4]`, then it will display the last 4 characters.
+Will hash the value of the `api_key`.
 
 ### 2. Create a Processor using the keys
 
 You can now create a new Processor with the given keys:
 
 ```php
-use RedactSensitive\RedactSensitiveProcessor;
+use HashSensitive\HashSensitiveProcessor;
 
-$sensitive_keys = ['api_key' => 4];
+$sensitive_keys = ['api_key'];
 
 $processor = new RedactSensitiveProcessor($sensitive_keys);
 ```
@@ -41,9 +37,9 @@ $processor = new RedactSensitiveProcessor($sensitive_keys);
 ### 3. Set the Processor to a Monolog\Logger
 
 ```php
-use RedactSensitive\RedactSensitiveProcessor;
+use HashSensitive\HashSensitiveProcessor;
 
-$sensitive_keys = ['api_key' => 4];
+$sensitive_keys = ['api_key'];
 
 $processor = new RedactSensitiveProcessor($sensitive_keys);
 
@@ -55,11 +51,11 @@ $logger->pushProcessor($processor);
 
 ```php
 use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
+use HashSensitive\HashSensitiveProcessor;
 
 $sensitive_keys = ['api_key' => 4];
 
-$processor = new RedactSensitiveProcessor($sensitive_keys);
+$processor = new HashSensitiveProcessor($sensitive_keys);
 
 $logger = new \Monolog\Logger('Readme', [new StreamHandler(STDOUT)]);
 $logger->pushProcessor($processor);
@@ -67,109 +63,34 @@ $logger->pushProcessor($processor);
 $logger->info('Hello, World!', ['api_key' => 'mysupersecretapikey']);
 ```
 ```text
-Readme.INFO: Hello, World! {"api_key":"mysu***************"} []
-```
-
-### Completely hidden
-
-You can hide it completely by passing `0` to the key.
-
-```php
-use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
-
-$sensitive_keys = ['you_know_nothing' => 0];
-
-$processor = new RedactSensitiveProcessor($sensitive_keys);
-
-$logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
-$logger->pushProcessor($processor);
-
-$logger->info('Completely hidden', ['you_know_nothing' => 'John Snow']);
-```
-```text
-Example.INFO: Completely hidden {"you_know_nothing":"*********"} []
+Readme.INFO: Hello, World! {"api_key":"TODO"} []
 ```
 
 ### Custom format
-
-Feel free to customize a replacement character `*` and/or provide your own template.
-
-```php
-use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
-
-$sensitive_keys = ['secret' => 2];
-
-$processor = new RedactSensitiveProcessor($sensitive_keys, template: '%s(redacted)');
-
-$logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
-$logger->pushProcessor($processor);
-
-$logger->info('Sensitive', ['secret' => 'my_secret_value']);
-```
-```text
-Example.INFO: Sensitive {"secret":"my*************(redacted)"} []
-```
-
-Custom template allows to discard the masked characters altogether:
-```php
-use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
-
-$sensitive_keys = ['secret' => 2];
-
-$processor = new RedactSensitiveProcessor($sensitive_keys, template: '...');
-
-$logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
-$logger->pushProcessor($processor);
-
-$logger->info('Sensitive', ['secret' => 'my_secret_value']);
-```
-```text
-Example.INFO: Sensitive {"secret":"my..."} []
-```
+If you're looking for formating the output with a user defined string, this isn't the right project.
+You might want to look into [redact-sensitive](https://github.com/leocavalcante/redact-sensitive).
 
 ### Length limit
 
-Use `lengthLimit` to truncate redacted sensitive information, such as lengthy tokens.
+Use `lengthLimit` to truncate redacted sensitive information, such as lengthy tokens. Truncation always happens before hashing.
 
 ```php
 use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
+use HashSensitive\HashSensitiveProcessor;
 
-$sensitive_keys = ['access_token' => 0];
+$sensitive_keys = ['access_token'];
 
-$processor = new RedactSensitiveProcessor($sensitive_keys, lengthLimit: 5);
+$processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 5);
 
 $logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
 $logger->pushProcessor($processor);
 
 $logger->info('Truncated secret', ['access_token' => 'Very long JWT ...']);
+$logger->info('Truncated secret', ['access_token' => 'Very long token ...']);
 ```
 ```text
-Example.INFO: Truncated secret {"access_token":"*****"} []
-```
-
-### Right to left
-
-And, as said before, you can mask the value from right to left using negative values.
-
-```php
-use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
-
-$sensitive_keys = ['credit_card' => -4];
-
-$processor = new RedactSensitiveProcessor($sensitive_keys);
-
-$logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
-$logger->pushProcessor($processor);
-
-$logger->info('You are not storing credit cards, right?', ['credit_card' => '4111111145551142']);
-```
-```text
-Example.INFO: You are not storing credit cards, right? {"credit_card":"************1142"} []
+Example.INFO: Truncated secret {"access_token":"TODO"} []
+Example.INFO: Truncated secret {"access_token":"TODO"} []
 ```
 
 ### Nested values
@@ -178,18 +99,18 @@ It should work with nested objects and arrays as well.
 
 ```php
 use Monolog\Handler\StreamHandler;
-use RedactSensitive\RedactSensitiveProcessor;
+use HashSensitive\HashSensitiveProcessor;
 
 $sensitive_keys = [
     'nested' => [
         'arr' => [
-            'value' => 3,
-            'or_obj' => ['secret' => -3],
+            'value',
+            'or_obj' => ['secret'],
         ],
     ]
 ];
 
-$processor = new RedactSensitiveProcessor($sensitive_keys);
+$processor = new HashSensitiveProcessor($sensitive_keys);
 
 $logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
 $logger->pushProcessor($processor);
@@ -207,11 +128,11 @@ $logger->info('Nested', [
 ]);
 ```
 ```text
-Example.INFO: Nested {"nested":{"arr":{"value":"abc***","or_obj":{"stdClass":{"secret":"***********one"}}}}} []
+Example.INFO: Nested {"nested":{"arr":{"value":"TODO","or_obj":{"stdClass":{"secret":"TODO"}}}}} []
 ```
 
 ## Thanks
 Feel free to open any issues or PRs.
 
 ---
-MIT &copy; 2021
+MIT &copy; 2024
