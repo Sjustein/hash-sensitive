@@ -128,7 +128,6 @@ it('it hashes all instances with exclusiveSubtree false in arrays', function ():
 
 it('it hashes all instances with exclusiveSubtree true in arrays', function (): void {
     $sensitive_keys = ['test', 'test_subkey' => ['to_hash']];
-    // The default exclusiveSubtree value should not change, this tests that as well
     $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test_key' => 'test_value', 'test_subkey' => ['to_hash' => 'test_value', 'test' => 'test']]);

@@ -2,21 +2,22 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use HashSensitive\HashSensitiveProcessor;
 use Monolog\Handler\StreamHandler;
-use RedactSensitive\HashSensitiveProcessor;
+use Monolog\Logger;
 
 $sensitive_keys = [
     'nested' => [
         'arr' => [
-            'value' => 3,
-            'or_obj' => ['secret' => -3],
+            'value',
+            'or_obj' => ['secret'],
         ],
-    ]
+    ],
 ];
 
 $processor = new HashSensitiveProcessor($sensitive_keys);
 
-$logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
+$logger = new Logger('Example', [new StreamHandler(STDOUT)]);
 $logger->pushProcessor($processor);
 
 $nested_obj = new stdClass();

@@ -1,6 +1,6 @@
 {
     "name": "sjustein/hash-sensitive",
-    "description": "Monolog processor to protect sensitive information from logging",
+    "description": "Monolog processor to protect sensitive information from logging by hashing the values",
     "type": "library",
     "license": "MIT",
     "authors": [
