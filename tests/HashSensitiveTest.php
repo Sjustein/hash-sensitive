@@ -117,6 +117,52 @@ it('redacts inside nested objects', function (): void {
         ->and($nested->nested['value'])->toBe('972c5e1203896784a7cf9dd60acd443a1065e19ad5f92e59a9180c185f065c04');
 });
 
+// ExclusiveSubtree stories
+it('it hashes all instances with exclusiveSubtree false in arrays', function (): void {
+    $sensitive_keys = ['test', 'test_subkey' => ['to_hash']];
+    $processor = new HashSensitiveProcessor($sensitive_keys, exclusiveSubtree: false);
+
+    $record = $this->getRecord(context: ['test_key' => 'test_value', 'test_subkey' => ['to_hash' => 'test_value', 'test' => 'test']]);
+    expect($processor($record)->context)->toBe(['test_key' => 'test_value', 'test_subkey' => ['to_hash' => '4f7f6a4ae46676d9751fdccdf15ae1e6a200ed0de5653e06390148928c642006', 'test' => '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08']]);
+});
+
+it('it hashes all instances with exclusiveSubtree true in arrays', function (): void {
+    $sensitive_keys = ['test', 'test_subkey' => ['to_hash']];
+    // The default exclusiveSubtree value should not change, this tests that as well
+    $processor = new HashSensitiveProcessor($sensitive_keys);
+
+    $record = $this->getRecord(context: ['test_key' => 'test_value', 'test_subkey' => ['to_hash' => 'test_value', 'test' => 'test']]);
+    expect($processor($record)->context)->toBe(['test_key' => 'test_value', 'test_subkey' => ['to_hash' => '4f7f6a4ae46676d9751fdccdf15ae1e6a200ed0de5653e06390148928c642006', 'test' => 'test']]);
+});
+
+it('it hashes all instances with exclusiveSubtree false in nested objects', function (): void {
+    $nested = new \stdClass();
+    $nested->to_hash = 'test_value';
+    $nested->test = 'test';
+
+    $sensitive_keys = ['test', 'test_subkey' => ['to_hash']];
+    $processor = new HashSensitiveProcessor($sensitive_keys, exclusiveSubtree: false);
+
+    $record = $this->getRecord(context: ['test_key' => 'test_value', 'test_subkey' => $nested]);
+    expect($processor($record)->context)->toBe(['test_key' => 'test_value', 'test_subkey' => $nested])
+        ->and($nested->to_hash)->toBe('4f7f6a4ae46676d9751fdccdf15ae1e6a200ed0de5653e06390148928c642006')
+        ->and($nested->test)->toBe('9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08');
+});
+
+it('it hashes all instances with exclusiveSubtree true in nested objects', function (): void {
+    $nested = new \stdClass();
+    $nested->to_hash = 'test_value';
+    $nested->test = 'test';
+
+    $sensitive_keys = ['test', 'test_subkey' => ['to_hash']];
+    $processor = new HashSensitiveProcessor($sensitive_keys);
+
+    $record = $this->getRecord(context: ['test_key' => 'test_value', 'test_subkey' => $nested]);
+    expect($processor($record)->context)->toBe(['test_key' => 'test_value', 'test_subkey' => $nested])
+        ->and($nested->to_hash)->toBe('4f7f6a4ae46676d9751fdccdf15ae1e6a200ed0de5653e06390148928c642006')
+        ->and($nested->test)->toBe('test');
+});
+
 it('preserves empty values', function (): void {
     $sensitive_keys = ['test', 'optionalKey'];
     $processor = new HashSensitiveProcessor($sensitive_keys);
