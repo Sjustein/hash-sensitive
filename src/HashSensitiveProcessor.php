@@ -23,7 +23,7 @@ class HashSensitiveProcessor implements ProcessorInterface
      * @param array $sensitiveKeys Keys that should trigger the redaction.
      * @param int|null $lengthLimit Max length after redaction.
      */
-    public function __construct(array $sensitiveKeys, ?int $lengthLimit = null)
+    public function __construct(array $sensitiveKeys, string $algorithm = 'sha256', ?int $lengthLimit = null)
     {
         $this->sensitiveKeys = $sensitiveKeys;
         $this->lengthLimit = $lengthLimit;
@@ -32,16 +32,14 @@ class HashSensitiveProcessor implements ProcessorInterface
 
     public function __invoke(LogRecord $record): LogRecord
     {
-        $redactedContext = $this->traverseArr($record->context, $this->sensitiveKeys);
+        $redactedContext = $this->traverseInputArray($record->context, $this->sensitiveKeys);
         return $record->with(context: $redactedContext);
     }
 
-    private function redact(string $value, int $length): string
+    private function hash(string $value): ?string
     {
-        $valueLength = strlen($value);
-
-        if ($valueLength === 0) {
-            return $value;
+        if (strlen($value) === 0) {
+            return null;
         }
 
         $hiddenLength = $valueLength - abs($length);
@@ -73,24 +71,24 @@ class HashSensitiveProcessor implements ProcessorInterface
         throw new UnexpectedValueException("Don't know how to traverse value at key $key");
     }
 
-    private function traverseArr(array $arr, array $keys): array
+    private function traverseInputArray(array $inputArray, array $sensitiveKeys): array
     {
-        foreach ($arr as $key => $value) {
+        foreach ($inputArray as $key => $value) {
             if (is_scalar($value)) {
-                if (array_key_exists($key, $keys)) {
-                    $arr[$key] = $this->redact((string) $value, $keys[$key]);
+                if (array_key_exists($key, $sensitiveKeys)) {
+                    $inputArray[$key] = $this->hash((string) $value);
                 }
                 continue;
             } else {
-                if (array_key_exists($key, $keys)) {
-                    $arr[$key] = $this->traverse($key, $value, $keys[$key]);
+                if (array_key_exists($key, $sensitiveKeys)) {
+                    $inputArray[$key] = $this->traverse($key, $value, $sensitiveKeys[$key]);
                 } else {
-                    $arr[$key] = $this->traverse($key, $value, $keys);
+                    $inputArray[$key] = $this->traverse($key, $value, $sensitiveKeys);
                 }
             }
         }
 
-        return $arr;
+        return $inputArray;
     }
 
     private function traverseObj(object $obj, array $keys): object

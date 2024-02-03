@@ -70,9 +70,10 @@ Readme.INFO: Hello, World! {"api_key":"TODO"} []
 If you're looking for formating the output with a user defined string, this isn't the right project.
 You might want to look into [redact-sensitive](https://github.com/leocavalcante/redact-sensitive).
 
-### Length limit
+### Length limit & algorithm
 
 Use `lengthLimit` to truncate redacted sensitive information, such as lengthy tokens. Truncation always happens before hashing.
+Use `algorithm` to specify the algorithm used for hashing the value. Refer to [the php documentation](https://www.php.net/manual/en/function.hash-algos.php) for a list of supported algorithms.
 
 ```php
 use Monolog\Handler\StreamHandler;
@@ -80,7 +81,7 @@ use HashSensitive\HashSensitiveProcessor;
 
 $sensitive_keys = ['access_token'];
 
-$processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 5);
+$processor = new HashSensitiveProcessor($sensitive_keys, algorithm: 'sha256', lengthLimit: 5);
 
 $logger = new \Monolog\Logger('Example', [new StreamHandler(STDOUT)]);
 $logger->pushProcessor($processor);
