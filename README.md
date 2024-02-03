@@ -136,6 +136,10 @@ Example.INFO: Nested {"test_key":"test_value","test_subkey":{"to_hash":"4f7f6a4a
 Example.INFO: Nested {"test_key":"test_value","test_subkey":{"to_hash":"4f7f6a4ae46676d9751fdccdf15ae1e6a200ed0de5653e06390148928c642006","test":"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"}} []
 ```
 
+## Using the library standalone
+It is possible to use the logic in the library without using it as a monolog hook. This can be achieved by constructing a new instance of the `Hasher` class.
+function `scrubKeys`, an array of values to scrub and the sensitive key array can be specified in the same manner as when using the library with monolog.
+
 ## Thanks
 Feel free to open any issues or PRs.
 
