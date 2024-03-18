@@ -15,6 +15,14 @@ it('redacts records contexts', function (): void {
     expect($processor($record)->context)->toBe(['test' => 'c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2']);
 });
 
+it('works without sensitive key subtrees', function (): void {
+    $sensitive_keys = ['test'];
+    $processor = new HashSensitiveProcessor($sensitive_keys);
+
+    $record = $this->getRecord(context: ['test' => ['foobar' => 'test']]);
+    expect($processor($record)->context)->toBe(['test' => 'f0cf39d0be3efbb6f86ac2404100ff7e055c17ded946a06808d66f89ca03a811']);
+});
+
 it('truncates masked characters', function (): void {
     $sensitive_keys = ['test'];
     $processor = new HashSensitiveProcessor($sensitive_keys, lengthLimit: 5);
@@ -86,6 +94,21 @@ it('redacts nested objects', function (): void {
     expect($processor($record)->context)->toBe(['test' => ['nested' => $nested]])
         ->and($nested->value)->toBe('c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2')
         ->and($nested->nested['value'])->toBe('972c5e1203896784a7cf9dd60acd443a1065e19ad5f92e59a9180c185f065c04');
+});
+
+it('works without sensitive key subobjects', function (): void {
+    $sensitive_keys = ['test'];
+    $processor = new HashSensitiveProcessor($sensitive_keys);
+
+    $nested = new \stdClass();
+    $nested->foobar = "test";
+
+    $obj = new \stdClass();
+    $obj->test = $nested;
+
+    $record = $this->getRecord(context: ['obj' => $obj]);
+    expect($processor($record)->context)->toBe(['obj' => $obj])
+        ->and($obj->test)->toBe('914dba76d2c953789b8ec73425b85bea1c8298815dd0afc1e4fc6c2d8be69648');
 });
 
 it('keeps non redacted nested objects intact', function (): void {
@@ -169,11 +192,3 @@ it('preserves empty values', function (): void {
     $record = $this->getRecord(context: ['test' => 'foobar', 'optionalKey' => '']);
     expect($processor($record)->context)->toBe(['test' => 'c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2', 'optionalKey' => null]);
 });
-
-it('throws when finds an un-traversable value', function (): void {
-    $sensitive_keys = ['test'];
-    $processor = new HashSensitiveProcessor($sensitive_keys);
-
-    $record = $this->getRecord(context: ['test' => fopen(__FILE__, 'rb')]);
-    $processor($record);
-})->throws(TypeError::class, 'Argument #2 ($value) must be of type object|array, resource given');

@@ -2,6 +2,8 @@
 
 namespace HashSensitive;
 
+use UnexpectedValueException;
+
 /**
  * Class to manage scrubbing the keys from an array
  *
@@ -107,6 +109,14 @@ class Hasher
 
             // The value is either an array or an object, let traverse handle the specifics
             if (in_array($key, $sensitiveKeys) || array_key_exists($key, $sensitiveKeys)) {
+                // If the sensitivekeys are not a subtree, hash the entire subtree
+                if (!array_key_exists($key, $sensitiveKeys)) {
+                    $inputArray[$key] = $this->hash((string) $value);
+
+                    // Continue to the next value, as there is no subtree or sub-object to traverse
+                    continue;
+                }
+
                 $inputArray[$key] = $this->traverse($key, $value, $sensitiveKeys[$key]);
 
                 // ExclusiveSubtree turned off means that sub keys should be checked according to ALL keys, not just
@@ -136,7 +146,7 @@ class Hasher
             // If the value is not an array or an object, hash it if it is a sensitive key
             if (is_scalar($value)) {
                 if (in_array($key, $sensitiveKeys) || array_key_exists($key, $sensitiveKeys)) {
-                    $object->{$key} = $this->hash((string) $value);
+                    $object->{$key} = $this->hash(print_r($value, true));
                 }
 
                 continue;
@@ -144,6 +154,14 @@ class Hasher
 
             // The value is either an array or an object, let traverse handle the specifics
             if (in_array($key, $sensitiveKeys) || array_key_exists($key, $sensitiveKeys)) {
+                // If the sensitivekeys are not a subtree, hash the entire sub-object
+                if (!array_key_exists($key, $sensitiveKeys)) {
+                    $object->{$key} = $this->hash(print_r($value, true));
+
+                    // Continue to the next value, as there is no subtree or sub-object to traverse
+                    continue;
+                }
+
                 $object->{$key} = $this->traverse($key, $value, $sensitiveKeys[$key]);
 
                 if (!$this->exclusiveSubtree) {
