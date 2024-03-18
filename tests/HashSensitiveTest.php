@@ -20,7 +20,7 @@ it('works without sensitive key subtrees', function (): void {
     $processor = new HashSensitiveProcessor($sensitive_keys);
 
     $record = $this->getRecord(context: ['test' => ['foobar' => 'test']]);
-    expect($processor($record)->context)->toBe(['test' => 'f0cf39d0be3efbb6f86ac2404100ff7e055c17ded946a06808d66f89ca03a811']);
+    expect($processor($record)->context)->toBe(['test' => 'c413de2c94a3a668b82ae2207da4b6961eeeccaff97623e2143d978610cb4746']);
 });
 
 it('truncates masked characters', function (): void {

@@ -101,7 +101,7 @@ class Hasher
             // If the value is not an array or an object, hash it if it is a sensitive key
             if (is_scalar($value)) {
                 if (in_array($key, $sensitiveKeys) || array_key_exists($key, $sensitiveKeys)) {
-                    $inputArray[$key] = $this->hash((string) $value);
+                    $inputArray[$key] = $this->hash(print_r($value, true));
                 }
 
                 continue;
@@ -111,7 +111,7 @@ class Hasher
             if (in_array($key, $sensitiveKeys) || array_key_exists($key, $sensitiveKeys)) {
                 // If the sensitivekeys are not a subtree, hash the entire subtree
                 if (!array_key_exists($key, $sensitiveKeys)) {
-                    $inputArray[$key] = $this->hash((string) $value);
+                    $inputArray[$key] = $this->hash(print_r($value, true));
 
                     // Continue to the next value, as there is no subtree or sub-object to traverse
                     continue;
