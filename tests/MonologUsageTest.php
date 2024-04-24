@@ -8,7 +8,7 @@ use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\LogRecord;
-use HashSensitive\HashSensitiveProcessor;
+use GlobyApp\HashSensitive\HashSensitiveProcessor;
 
 it('plays nice with monolog', function (): void {
     $handler = new TestHandler();

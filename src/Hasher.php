@@ -1,6 +1,6 @@
 <?php
 
-namespace HashSensitive;
+namespace GlobyApp\HashSensitive;
 
 use UnexpectedValueException;
 

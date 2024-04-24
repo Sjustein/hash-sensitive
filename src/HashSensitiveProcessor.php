@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace HashSensitive;
+namespace GlobyApp\HashSensitive;
 
 use Monolog\LogRecord;
 use Monolog\Processor\ProcessorInterface;
@@ -10,7 +10,7 @@ use UnexpectedValueException;
 
 /**
  * The processor to be added to your Monolog instance.
- * @package HashSensitive
+ * @package GlobyApp\HashSensitive
  */
 class HashSensitiveProcessor extends Hasher implements ProcessorInterface
 {

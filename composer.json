@@ -1,5 +1,5 @@
 {
-    "name": "sjustein/hash-sensitive",
+    "name": "globyapp/hash-sensitive",
     "description": "Monolog processor to protect sensitive information from logging by hashing the values",
     "type": "library",
     "license": "MIT",
@@ -7,6 +7,10 @@
         {
             "name": "sjustein",
             "email": "hashsensitive@justinruiter.nl"
+        },
+        {
+            "name": "Justin Ruiter",
+            "email": "globy@justinruiter.nl"
         }
     ],
     "minimum-stability": "stable",
@@ -16,7 +20,7 @@
     },
     "autoload": {
         "psr-4": {
-            "HashSensitive\\": "src/"
+            "GlobyApp\\HashSensitive\\": "src/"
         }
     },
     "require-dev": {
