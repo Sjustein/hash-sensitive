@@ -27,12 +27,30 @@
         "pestphp/pest": "^2.4",
         "friendsofphp/php-cs-fixer": "^3.16",
         "phpstan/phpstan": "^1.10",
-        "phpstan/phpstan-deprecation-rules": "^1.1"
+        "phpstan/phpstan-deprecation-rules": "^1.1",
+        "vimeo/psalm": "^5.23"
     },
     "autoload-dev": {
         "psr-4": {
             "HashSensitiveTests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": [
+            "composer exec phpunit"
+        ],
+        "lint": [
+            "vendor/bin/php-cs-fixer fix src --dry-run --allow-risky=yes"
+        ],
+        "lint:fix": [
+            "vendor/bin/php-cs-fixer fix src --allow-risky=yes"
+        ],
+        "phpstan": [
+            "php -d memory_limit=1G ./vendor/bin/phpstan analyse -c phpstan.neon"
+        ],
+        "psalm": [
+            "php ./vendor/bin/psalm"
+        ]
     },
     "config": {
         "allow-plugins": {

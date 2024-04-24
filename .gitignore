@@ -8,6 +8,7 @@ examples/hashresult.php
 *.iws
 *.ipr
 .idea/
+.tmp/
 
 # eclipse project file
 .settings/
